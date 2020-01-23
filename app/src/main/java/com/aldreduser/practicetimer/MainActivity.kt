@@ -1,5 +1,6 @@
 package com.aldreduser.practicetimer
 
+import android.annotation.TargetApi
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
@@ -12,16 +13,22 @@ import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import androidx.annotation.RequiresApi
+import com.aldreduser.practicetimer.util.NotificationUtil
 import com.aldreduser.practicetimer.util.PrefUtil
 
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import java.util.*
 
+//idk why the notifications aren't showing, maybe i'll get to this one day
+// this is video 4, the next is video 5
+//https://www.youtube.com/watch?v=HpNvvkFuH6E
+//https://www.youtube.com/watch?v=r--0DUwBS9c
+
 class MainActivity : AppCompatActivity() {
 
     companion object {
-        @RequiresApi(Build.VERSION_CODES.KITKAT)
+        @TargetApi(Build.VERSION_CODES.KITKAT)
         fun setAlarm(context: Context, nowSeconds: Long, secondsRemaining: Long): Long {
             val wakeUpTime = (nowSeconds + secondsRemaining) * 1000    //milliseconds
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -81,18 +88,19 @@ class MainActivity : AppCompatActivity() {
         initTimer()
 
         removeAlarm(this)
-        //TODO: And hide notification
+        NotificationUtil.hideTimerNotification(this)
     }
 
+    @TargetApi(Build.VERSION_CODES.KITKAT)
     override fun onPause() {
         super.onPause()
 
         if (timerState == TimerState.Running) {
             timer.cancel()
             val wakeUpTime = setAlarm(this, nowSeconds, secondsRemaining)
-            // TODO: show notification
+            NotificationUtil.showTimerRunning(this, wakeUpTime)
         } else if(timerState == TimerState.Paused){
-            //TODO: show notification
+            NotificationUtil.showTimerPaused(this)
         }
 
         PrefUtil.setPreviousTimerLengthSeconds(timerLengthSeconds, this)
